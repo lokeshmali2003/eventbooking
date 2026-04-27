@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { sendOtpEmail } = require('../utils/email');
 
 //register User
 
@@ -16,12 +17,18 @@ exports.registerUser = async (req, res)=>{
 
 
     try{
-        const user = new user ({name, email, Password});
-        await user.save();
-        res.status(201).json({message:'user registered Successfuly'});
+        const user = new user.create ({name, email, Password: hashedPassword , role: 'user' , isVerified: false  });
 
          const otp = Math.floor(100000 + Math.random()*900000).toString();
          console.log(`OTP For ${email}: ${otp} `);
+         await OTP.create({email, otp, action:'account_verification'});
+         await sendOtpEmail(email, otp, 'account_verification');
+
+          res.status(201).json({message:'user registered Successfuly. Please check Your Email for  OTP to Verify Your Account.',
+           email: user.email
+
+          });
+
 
 
     }catch (error){
