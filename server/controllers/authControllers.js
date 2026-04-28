@@ -1,8 +1,11 @@
 const User = require('../models/User');
 const { sendOtpEmail } = require('../utils/email');
 const OTP = require('../models/OTP');
+const jwt = require('jsonwebtoken');
 const {sendOtpEmail} = require('../utils/email')
-
+const generateToken = (id, role)=>{
+    return jwt.sign({id, role}, process.env, JWT_SECRET, {expiresIn: '7d'});
+}
 
 //register User
 
@@ -52,7 +55,7 @@ exports.loginUser = async(req,res)=>{
         return res.status(400).json({error:'Invalid Credentials'});
     }
 
-    if(!user.isVerified){
+    if(!user.isVerified && user.role === 'user'){
         const otp = Math.floor(100000 + Math.random()*900000).toString();
         await OTP.deleteMany({email, action: 'account_verification'}); // Remove Old OTPs 
         await OTP.create({email, otp, action: 'account_verification'});
@@ -61,11 +64,27 @@ exports.loginUser = async(req,res)=>{
             error:'Account Not Verified. A new Otp has been Sent to Your Email.'
         });
     }
+    
 
-    res.status(200).json({
+    res.json({
         message: 'Login Successfully',
-        user:{
-
-        }
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id, user.role)
     })
-}
+};
+
+//Verify OTP
+exports.verifyotp = async(req,res) =>{
+    const {email, otp} = req.body;
+    const otpRecord = await OTP.findOne({email, otp, action: 'account_verification'});
+
+    if(!otpRecord){
+        return res.status(400).json({error: 'Invalid or Expired OTP'}); 
+    }
+    await User.findOneAndUpdate({email},{isVerified: true});
+    await OTP.deleteMany({email, action: 'account_verification'});
+    res.json({message:'Account Verified Successfully. You can now log in.'});
+};
