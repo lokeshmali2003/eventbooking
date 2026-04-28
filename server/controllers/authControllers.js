@@ -84,7 +84,16 @@ exports.verifyotp = async(req,res) =>{
     if(!otpRecord){
         return res.status(400).json({error: 'Invalid or Expired OTP'}); 
     }
-    await User.findOneAndUpdate({email},{isVerified: true});
+    const user = await User.findOneAndUpdate({email},{isVerified: true});
     await OTP.deleteMany({email, action: 'account_verification'});
-    res.json({message:'Account Verified Successfully. You can now log in.'});
+    res.json({
+        
+        message:'Account Verified Successfully. You can now log in.',
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id, user.role)
+
+    });
 };
