@@ -1,183 +1,93 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from "react";
 
 function Navbar() {
-    return (
-        <div>
-            <header className="header">
-                <div className="header-inner">
-                    <nav className="navbar navbar-expand-lg bg-barren barren-head navbar fixed-top justify-content-sm-start pt-0 pb-0">
-                        <div className="container">
-                            <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                                <span className="navbar-toggler-icon">
-                                    <i className="fa-solid fa-bars"></i>
-                                </span>
-                            </button>
-                            <a className="navbar-brand order-1 order-lg-0 ml-lg-0 ml-2 me-auto" href="index.html">
-                                <div className="res-main-logo">
-                                    <img src="images/logo-icon.svg" alt="" />
-                                </div>
-                                <div className="main-logo" id="logo">
-                                    <img src="images/logo.svg" alt="" />
-                                    <img className="logo-inverse" src="images/dark-logo.svg" alt="" />
-                                </div>
-                            </a>
-                            <div className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-                                <div className="offcanvas-header">
-                                    <div className="offcanvas-logo" id="offcanvasNavbarLabel">
-                                        <img src="images/logo-icon.svg" alt="" />
-                                    </div>
-                                    <button type="button" className="close-btn" data-bs-dismiss="offcanvas" aria-label="Close">
-                                        <i className="fa-solid fa-xmark"></i>
-                                    </button>
-                                </div>
-                                <div className="offcanvas-body">
-                                    <div className="offcanvas-top-area">
-                                        <div className="create-bg">
-                                            <a href="create.html" className="offcanvas-create-btn">
-                                                <i className="fa-solid fa-calendar-days"></i>
-                                                <span>Create Event</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <ul className="navbar-nav justify-content-end flex-grow-1 pe_5">
-                                        <li className="nav-item">
-                                            <a className="nav-link active" aria-current="page" href="index.html">Home</a>
-                                        </li>
-                                        <li className="nav-item dropdown">
-                                            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Explore Events
-                                            </a>
-                                            <ul className="dropdown-menu dropdown-submenu">
-                                                <li><a className="dropdown-item" href="explore_events.html">Explore Events</a></li>
-                                                <li><a className="dropdown-item" href="venue_event_detail_view.html">Venue Event Detail View</a></li>
-                                                <li><a className="dropdown-item" href="online_event_detail_view.html">Online Event Detail View</a></li>
-                                            </ul>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a className="nav-link" href="pricing.html">Pricing</a>
-                                        </li>
-                                        <li className="nav-item dropdown">
-                                            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Blog
-                                            </a>
-                                            <ul className="dropdown-menu dropdown-submenu">
-                                                <li><a className="dropdown-item" href="our_blog.html">Our Blog</a></li>
-                                                <li><a className="dropdown-item" href="blog_detail_view.html">Blog Detail View</a></li>
-                                            </ul>
-                                        </li>
-                                        <li className="nav-item dropdown">
-                                            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Help
-                                            </a>
-                                            <ul className="dropdown-menu dropdown-submenu">
-                                                <li><a className="dropdown-item" href="faq.html">FAQ</a></li>
-                                                <li><a className="dropdown-item" href="help_center.html">Help Center</a></li>
-                                                <li><a className="dropdown-item" href="contact_us.html">Contact Us</a></li>
-                                            </ul>
-                                        </li>
-                                        <li className="nav-item dropdown">
-                                            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Pages
-                                            </a>
-                                            <ul className="dropdown-menu dropdown-submenu">
-                                                <li>
-                                                    <a className="dropdown-item submenu-item" href="#">Other Pages</a>
-                                                    <ul className="submenu dropdown-menu">
-                                                        <li><a className="dropdown-item pe-5" href="sign_in.html">Sign In</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="sign_up.html">Sign Up</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="forgot_password.html">Forgot Password</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="about_us.html">About Us</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="checkout.html">Checkout</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="checkout_premium.html">Checkout Premium</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="invoice.html">Invoice</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="coming_soon.html">Coming Soon</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="error_404.html">Error 404</a></li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <a className="dropdown-item submenu-item" href="#">Create Event</a>
-                                                    <ul className="submenu dropdown-menu">
-                                                        <li><a className="dropdown-item pe-5" href="create.html">Create</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="create_venue_event.html">Create Venue Event</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="create_online_event.html">Create Online Event</a></li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <a className="dropdown-item submenu-item" href="#">Events View</a>
-                                                    <ul className="submenu dropdown-menu">
-                                                        <li><a className="dropdown-item pe-5" href="online_event_detail_view.html">Online Event Detail View</a></li>
-                                                        <li><a className="dropdown-item pe-5" href="venue_event_detail_view.html">Venue Event Detail View</a></li>
-                                                    </ul>
-                                                </li>
-                                                <li><a className="dropdown-item" href="booking_confirmed.html">Booking Confirmed</a></li>
-                                                <li><a className="dropdown-item" href="attendee_profile_view.html">Attendee Profile View</a></li>
-                                                <li><a className="dropdown-item" href="organiser_profile_view.html">Organiser Profile View</a></li>
-                                                <li><a className="dropdown-item" href="my_organisation_dashboard.html">Organization Dashboard</a></li>
-                                                <li><a className="dropdown-item" href="sell_tickets_online.html">Sell Tickets Online</a></li>
-                                                <li><a className="dropdown-item" href="refer_a_friend.html">Refer a Friend</a></li>
-                                                <li><a className="dropdown-item" href="term_and_conditions.html">Terms &amp; Conditions</a></li>
-                                                <li><a className="dropdown-item" href="privacy_policy.html">Privacy Policy</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div className="offcanvas-footer">
-                                    <div className="offcanvas-social">
-                                        <h5>Follow Us</h5>
-                                        <ul className="social-links">
-                                            <li><a href="#" className="social-link"><i className="fab fa-facebook-square"></i></a></li>
-                                            <li><a href="#" className="social-link"><i className="fab fa-instagram"></i></a></li>
-                                            <li><a href="#" className="social-link"><i className="fab fa-twitter"></i></a></li>
-                                            <li><a href="#" className="social-link"><i className="fab fa-linkedin-in"></i></a></li>
-                                            <li><a href="#" className="social-link"><i className="fab fa-youtube"></i></a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="right-header order-2">
-                                <ul className="align-self-stretch">
-                                    <li>
-                                        <a href="create.html" className="create-btn btn-hover">
-                                            <i className="fa-solid fa-calendar-days"></i>
-                                            <span>Create Event</span>
-                                        </a>
-                                    </li>
-                                    <li className="dropdown account-dropdown">
-                                        <a href="#" className="account-link" role="button" id="accountClick" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <img src="images/profile-imgs/img-13.jpg" alt="" />
-                                            <i className="fas fa-caret-down arrow-icon"></i>
-                                        </a>
-                                        <ul className="dropdown-menu dropdown-menu-account dropdown-menu-end" aria-labelledby="accountClick">
-                                            <li>
-                                                <div className="dropdown-account-header">
-                                                    <div className="account-holder-avatar">
-                                                        <img src="images/profile-imgs/img-13.jpg" alt="" />
-                                                    </div>
-                                                    <h5>John Doe</h5>
-                                                    <p>johndoe@example.com</p>
-                                                </div>
-                                            </li>
-                                            <li className="profile-link">
-                                                <a href="my_organisation_dashboard.html" className="link-item">My Organisation</a>
-                                                <a href="organiser_profile_view.html" className="link-item">My Profile</a>
-                                                <a href="sign_in.html" className="link-item">Sign Out</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <div className="night_mode_switch__btn">
-                                            <div id="night-mode" className="fas fa-moon fa-sun"></div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
-                    <div className="overlay"></div>
-                </div>
-            </header>
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const navRef = useRef(null);
+
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 60);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  // Derived styles based on scroll state
+  const linkColor = scrolled ? "text-navy/80 hover:text-navy" : "text-white/80 hover:text-white";
+  const logoColor = scrolled ? "text-navy" : "text-white";
+  const barColor  = scrolled ? "bg-navy" : "bg-white";
+  const navBg     = scrolled ? "bg-white/95 backdrop-blur shadow-sm" : "bg-transparent";
+
+  return (
+    <div>
+      <nav
+        ref={navRef}
+        id="navbar"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}
+      >
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="flex items-center justify-between h-18 py-4">
+
+            {/* Logo */}
+            <a href="#" className="flex items-center gap-2 group">
+              <div className="w-9 h-9 rounded-xl bg-cobalt flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span className={`font-display text-2xl font-black tracking-tight transition-colors duration-300 ${logoColor}`}
+                style={{ letterSpacing: "-0.02em" }}>
+                Eventara
+              </span>
+            </a>
+
+            {/* Desktop Links */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#events"  className={`font-medium text-sm transition-colors ${linkColor}`}>Events</a>
+              <a href="#about"   className={`font-medium text-sm transition-colors ${linkColor}`}>About</a>
+              <a href="#contact" className={`font-medium text-sm transition-colors ${linkColor}`}>Contact</a>
+              <a href="#events"
+                className="bg-white text-cobalt px-5 py-2 rounded-full text-sm font-semibold hover:bg-ice transition-colors shadow-sm">
+                Browse Events
+              </a>
+            </div>
+
+            {/* Hamburger */}
+            <button
+              className="md:hidden flex flex-col gap-1.5 p-2"
+              aria-label="Toggle menu"
+              onClick={toggleMobileMenu}
+            >
+              <span className={`block w-6 h-0.5 rounded transition-all duration-300 ${barColor} ${isMobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
+              <span className={`block w-6 h-0.5 rounded transition-all duration-300 ${barColor} ${isMobileMenuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-4 h-0.5 rounded transition-all duration-300 ml-auto ${barColor} ${isMobileMenuOpen ? "-rotate-45 -translate-y-2 w-6" : ""}`} />
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-5 mb-4 flex flex-col gap-4 border border-white/20">
+                <a href="#events"  onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Events</a>
+                <a href="#about"   onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">About</a>
+                <a href="#contact" onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Contact</a>
+                <a href="#events"  onClick={closeMobileMenu}
+                  className="bg-white text-cobalt px-5 py-2.5 rounded-full text-sm font-semibold text-center hover:bg-ice transition-colors">
+                  Browse Events
+                </a>
+              </div>
+            </div>
+          )}
         </div>
-    )
+      </nav>
+    </div>
+  );
 }
 
-export default Navbar
+export default Navbar;

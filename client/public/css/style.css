@@ -1,0 +1,134 @@
+/* ============================================================
+   EVENTARA — styles.css
+   ============================================================ */
+
+/* ---------- Base ---------- */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #f8faff;
+}
+
+/* ---------- Navbar scroll effect ---------- */
+#navbar {
+  transition: background 0.35s, box-shadow 0.35s;
+}
+#navbar.scrolled {
+  background: rgba(255, 255, 255, 0.97) !important;
+  box-shadow: 0 2px 24px rgba(26, 79, 214, 0.10);
+}
+
+/* ---------- Hero gradient mesh ---------- */
+.hero-bg {
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a6e 45%, #1a4fd6 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 80% 40%, rgba(59, 130, 246, .35) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 10% 80%, rgba(26, 79, 214, .30) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ---------- Floating animation ---------- */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ---------- Card hover ---------- */
+.event-card {
+  transition: transform 0.3s cubic-bezier(.22, .68, 0, 1.2), box-shadow 0.3s;
+}
+.event-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 24px 48px rgba(26, 79, 214, .18);
+}
+.event-card:hover .card-img {
+  transform: scale(1.06);
+}
+.card-img {
+  transition: transform 0.5s ease;
+}
+
+/* ---------- Book Now button shimmer ---------- */
+.book-btn {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s, color 0.2s;
+}
+.book-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, .2);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.book-btn:hover::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Tag pill ---------- */
+.tag {
+  backdrop-filter: blur(8px);
+}
+
+/* ---------- Booking modal ---------- */
+#modal {
+  transition: opacity 0.25s;
+}
+#modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#modal:not(.hidden) {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+#modal-box {
+  animation: modalIn .3s cubic-bezier(.22, .68, 0, 1.2) forwards;
+}
+
+/* ---------- Mobile menu ---------- */
+#mobile-menu {
+  transition: max-height 0.35s ease, opacity 0.3s;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+#mobile-menu.open {
+  max-height: 400px;
+  opacity: 1;
+}
+
+/* ---------- Section fade-in on scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
