@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
+import { Link } from "react-router-dom";
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -49,14 +49,15 @@ function Navbar() {
 
             {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#events"  className={`font-medium text-sm transition-colors ${linkColor}`}>Events</a>
-              <a href="#about"   className={`font-medium text-sm transition-colors ${linkColor}`}>About</a>
-              <a href="#contact" className={`font-medium text-sm transition-colors ${linkColor}`}>Contact</a>
-              <a href="#events"
+              <Link to="/"   className={`font-medium text-sm transition-colors ${linkColor}`}>Home</Link>
+              <Link to="/events"  className={`font-medium text-sm transition-colors ${linkColor}`}>Events</Link>
+              <Link to="/dashboard" className={`font-medium text-sm transition-colors ${linkColor}`}>Dashboard</Link>
+              <Link to="/profile"
                 className="bg-white text-cobalt px-5 py-2 rounded-full text-sm font-semibold hover:bg-ice transition-colors shadow-sm">
-                Browse Events
-              </a>
+                Profile
+              </Link>
             </div>
+
 
             {/* Hamburger */}
             <button
@@ -74,13 +75,13 @@ function Navbar() {
           {isMobileMenuOpen && (
             <div className="md:hidden">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-5 mb-4 flex flex-col gap-4 border border-white/20">
-                <a href="#events"  onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Events</a>
-                <a href="#about"   onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">About</a>
-                <a href="#contact" onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Contact</a>
-                <a href="#events"  onClick={closeMobileMenu}
+                <Link href="/"   onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Home</Link>
+                <Link to="/events"  onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Events</Link>
+                <Link to="#contact" onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-base transition-colors">Contact</Link>
+                <Link to="/profile"  onClick={closeMobileMenu}
                   className="bg-white text-cobalt px-5 py-2.5 rounded-full text-sm font-semibold text-center hover:bg-ice transition-colors">
-                  Browse Events
-                </a>
+                  Profile
+                </Link>
               </div>
             </div>
           )}
