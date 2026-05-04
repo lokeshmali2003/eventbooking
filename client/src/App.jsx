@@ -3,6 +3,7 @@ import Home from "./pages/Home/Home.jsx";
 
 import Signup from './pages/Signup/Signup.jsx';
 import Login from './pages/Login/Login.jsx';
+import ForgotPassword from './pages/Login/ForgotPassword.jsx';
 
 // Events
 import Events from './pages/Events/Events.jsx';
@@ -14,6 +15,8 @@ import Profile from './pages/Profile/Profile.jsx';
 // Admin 
 import Dashboard from './pages/Admin/Dashboard.jsx';
 import ManageEvents from './pages/Admin/ManageEvents.jsx';
+import User from './pages/Admin/User.jsx';
+import ManageBooking from './pages/Admin/ManageBooking.jsx';
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 function App() {
@@ -29,10 +32,13 @@ function App() {
 
       <Route path="/signup" element={<Signup />}/>
       <Route path="/login" element={<Login />}/>
+      <Route path="/forgotpass" element={<ForgotPassword />}/>
 
       {/* Admin Dashboard */}
       <Route path="/dashboard" element={<Dashboard />}/>
       <Route path="/ManageEvents" element={<ManageEvents />}/>
+      <Route path="/User" element={<User />}/>
+      <Route path="/managebooking" element={<ManageBooking />}/>
 
     </Routes>
     </BrowserRouter>

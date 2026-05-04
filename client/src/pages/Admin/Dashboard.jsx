@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Navbar from '../../components/Navbar/Navbar';
+import AdminNav from '../../components/Navbar/AdminNav';
 import Footer from '../../components/Footer/Footer';
 import { Link } from 'react-router-dom';
 
@@ -44,7 +44,7 @@ function Dashboard() {
 
   return (
     <div className="bg-pearl min-h-screen">
-      <Navbar />
+      <AdminNav />
 
       {/* ── HEADER ── */}
       <section className="hero-bg pt-32 pb-16">

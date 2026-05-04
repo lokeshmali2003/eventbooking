@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import Navbar from '../../components/Navbar/Navbar';
+import AdminNav from '../../components/Navbar/AdminNav';
 import Footer from '../../components/Footer/Footer';
 
 // ── Initial Seed Data (mirrors Events.jsx) ─────────────────────────
@@ -552,7 +552,7 @@ export default function ManageEvents() {
 
   return (
     <div className="min-h-screen bg-pearl">
-      <Navbar />
+      <AdminNav />
 
       {/* ── PAGE HEADER ── */}
       <section className="hero-bg pt-32 pb-14">
