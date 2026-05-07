@@ -1,43 +1,76 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import API from "../../api";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const steps = ['Account', 'Profile', 'Done'];
 
 export default function Signup() {
+
+   const navigate = useNavigate();
+
   const [step, setStep]         = useState(0);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
-  const [form, setForm]         = useState({
-    email: '', password: '', confirm: '',
-    firstName: '', lastName: '', interests: [],
-  });
-
-  const interests = ['🎵 Music','💻 Tech','🎨 Art','🍷 Food','🧘 Wellness','🏃 Sports'];
-  const handle    = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const toggleInterest = tag =>
-    setForm(f => ({
-      ...f,
-      interests: f.interests.includes(tag)
-        ? f.interests.filter(i => i !== tag)
-        : [...f.interests, tag],
-    }));
+  
 
   const nextStep = () => {
     setError('');
     if (step === 0) {
-      if (!form.email || !form.password || !form.confirm) { setError('Please fill in all fields.'); return; }
-      if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
-      if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+      if (!formData.email || !formData.password || !formData.confirmPassword) { setError('Please fill in all fields.'); return; }
+      if (formData.password !== formData.confirmPassword) { setError('Passwords do not match.'); return; }
+      if (formData.password.length < 8) { setError('Password must be at least 8 characters.'); return; }
     }
     if (step === 1) {
-      if (!form.firstName || !form.lastName) { setError('Please enter your name.'); return; }
+      if (!formData.firstName || !formData.lastName) { setError('Please enter your name.'); return; }
       setLoading(true);
       setTimeout(() => { setLoading(false); setStep(2); }, 1500);
       return;
     }
     setStep(s => s + 1);
   };
+
+
+const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await API.post("/auth/register", formData);
+
+      toast.success(res.data.message);
+
+      // save token
+      localStorage.setItem("token", res.data.token);
+
+      // save user
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      navigate("/profile");
+
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Signup failed"
+      );
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen flex font-body" style={{ background: 'linear-gradient(135deg,#0a1628 0%,#1a3a6e 60%,#0a1628 100%)' }}>
@@ -176,7 +209,7 @@ export default function Signup() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                       </div>
-                      <input type="email" name="email" value={form.email} onChange={handle}
+                      <input type="email" name="email" value={formData.email} onChange={handleChange}
                         placeholder="you@example.com"
                         className="w-full pl-10 pr-4 py-3 border border-navy/12 rounded-xl text-navy text-sm placeholder-navy/30 focus:outline-none focus:border-cobalt focus:ring-2 focus:ring-cobalt/10 transition-all"/>
                     </div>
@@ -190,7 +223,7 @@ export default function Signup() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
                       </div>
-                      <input type={showPass ? 'text' : 'password'} name="password" value={form.password} onChange={handle}
+                      <input type={showPass ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange}
                         placeholder="Min. 8 characters"
                         className="w-full pl-10 pr-11 py-3 border border-navy/12 rounded-xl text-navy text-sm placeholder-navy/30 focus:outline-none focus:border-cobalt focus:ring-2 focus:ring-cobalt/10 transition-all"/>
                       <button type="button" onClick={() => setShowPass(!showPass)}
@@ -202,13 +235,13 @@ export default function Signup() {
                       </button>
                     </div>
                     {/* Strength bar */}
-                    {form.password && (
+                    {formData.password && (
                       <div className="flex gap-1 mt-2">
                         {[1,2,3,4].map(i => (
                           <div key={i} className={`flex-1 h-1 rounded-full transition-all ${
-                            form.password.length >= i * 3
-                              ? form.password.length < 6 ? 'bg-red-400'
-                              : form.password.length < 8 ? 'bg-yellow-400' : 'bg-green-400'
+                            formData.password.length >= i * 3
+                              ? formData.password.length < 6 ? 'bg-red-400'
+                              : formData.password.length < 8 ? 'bg-yellow-400' : 'bg-green-400'
                               : 'bg-navy/10'
                           }`}/>
                         ))}
@@ -224,7 +257,7 @@ export default function Signup() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
                       </div>
-                      <input type="password" name="confirm" value={form.confirm} onChange={handle}
+                      <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
                         placeholder="Re-enter password"
                         className="w-full pl-10 pr-4 py-3 border border-navy/12 rounded-xl text-navy text-sm placeholder-navy/30 focus:outline-none focus:border-cobalt focus:ring-2 focus:ring-cobalt/10 transition-all"/>
                     </div>
@@ -257,34 +290,19 @@ export default function Signup() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-navy text-sm font-semibold mb-1.5">First name</label>
-                      <input type="text" name="firstName" value={form.firstName} onChange={handle}
+                      <input type="text" name="firstName" value={formData.firstName} onChange={handleChange}
                         placeholder="Jane"
                         className="w-full px-4 py-3 border border-navy/12 rounded-xl text-navy text-sm placeholder-navy/30 focus:outline-none focus:border-cobalt focus:ring-2 focus:ring-cobalt/10 transition-all"/>
                     </div>
                     <div>
                       <label className="block text-navy text-sm font-semibold mb-1.5">Last name</label>
-                      <input type="text" name="lastName" value={form.lastName} onChange={handle}
+                      <input type="text" name="lastName" value={formData.lastName} onChange={handleChange}
                         placeholder="Doe"
                         className="w-full px-4 py-3 border border-navy/12 rounded-xl text-navy text-sm placeholder-navy/30 focus:outline-none focus:border-cobalt focus:ring-2 focus:ring-cobalt/10 transition-all"/>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-navy text-sm font-semibold mb-3">
-                      Interests <span className="text-navy/30 font-normal">(optional)</span>
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {interests.map(tag => (
-                        <button key={tag} type="button" onClick={() => toggleInterest(tag)}
-                          className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all
-                            ${form.interests.includes(tag)
-                              ? 'bg-cobalt text-white border-cobalt'
-                              : 'bg-white text-navy border-navy/12 hover:border-cobalt hover:text-cobalt'}`}>
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  
                 </div>
 
                 <div className="flex gap-3 mt-6">
@@ -292,7 +310,7 @@ export default function Signup() {
                     className="flex-1 border border-navy/15 text-navy py-3 rounded-xl font-semibold text-sm hover:bg-navy/5 transition-colors">
                     ← Back
                   </button>
-                  <button onClick={nextStep} disabled={loading}
+                  <button onClick={handleSubmit} disabled={loading}
                     className="flex-[2] bg-cobalt hover:bg-sky text-white py-3 rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-cobalt/25 flex items-center justify-center gap-2 disabled:opacity-70">
                     {loading
                       ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Creating…</>
@@ -312,14 +330,14 @@ export default function Signup() {
                   </svg>
                 </div>
                 <h2 className="font-display text-3xl font-black text-navy mb-2" style={{ letterSpacing: '-0.02em' }}>
-                  You're in, {form.firstName}! 🎉
+                  You're in, {formData.firstName}! 🎉
                 </h2>
                 <p className="text-navy/50 text-sm mb-8">Your account is ready. Start exploring events now.</p>
                 <Link to="/"
                   className="inline-block w-full bg-cobalt hover:bg-sky text-white py-3.5 rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-cobalt/25">
                   Browse Events →
                 </Link>
-                <p className="text-navy/30 text-xs mt-4">A confirmation email has been sent to <strong className="text-navy/50">{form.email}</strong></p>
+                <p className="text-navy/30 text-xs mt-4">A confirmation email has been sent to <strong className="text-navy/50">{formData.email}</strong></p>
               </div>
             )}
           </div>

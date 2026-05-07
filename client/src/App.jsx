@@ -17,11 +17,12 @@ import Dashboard from './pages/Admin/Dashboard.jsx';
 import ManageEvents from './pages/Admin/ManageEvents.jsx';
 import User from './pages/Admin/User.jsx';
 import ManageBooking from './pages/Admin/ManageBooking.jsx';
-
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 function App() {
   return (
     <BrowserRouter>
+     <Toaster position="top-right" />
     <Routes>
       <Route path="/" element={<Home />}/>
       <Route path="/events" element={<Events />}/>
