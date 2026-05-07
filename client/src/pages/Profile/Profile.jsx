@@ -363,6 +363,7 @@ function EditModal({ user, onClose, onSave }) {
 
 // ── Main Profile Component ───────────────────────────────────────────
 function Profile() {
+
   const [user, setUser] = useState({
     ...USER,
     firstName: 'Ada',
@@ -402,7 +403,7 @@ function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-pearl">
+    <div className="min-h-screen w-full bg-pearl">
       <Navbar />
 
       {/* ── PROFILE HERO ── */}
@@ -428,7 +429,7 @@ function Profile() {
                 Member since {user.memberSince}
               </div>
               <h1 className="font-display text-4xl font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
-                {user.name}
+               {user.firstName} {user.lastName}
               </h1>
               <p className="text-white/60 text-sm mt-1.5">{user.jobTitle} · {user.company}</p>
             </div>

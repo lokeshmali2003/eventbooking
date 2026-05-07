@@ -6,7 +6,7 @@ const productRoutes = require('./routes/productsRoutes.js')
 const authRoutes = require("./routes/authRoutes.js")
 const cors = require('cors');
 
-const port = 3000
+const port = 5000
 
 // Middleware
 app.use(cors());
@@ -24,7 +24,6 @@ app.get('/', (req, res) => {
 
 app.use('/api', productRoutes);
 app.use("/api/auth", authRoutes );
-// app.use("/api/user", require("./routes/userRoutes"));
 
 app.listen(port, () => {
   console.log(`Product app listening on port ${port}`)

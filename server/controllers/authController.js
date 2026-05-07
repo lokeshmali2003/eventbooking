@@ -56,3 +56,18 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.getUser = async(req, res) =>{
+try{
+    const allUsers = await User.find();
+    res.status(200).json(allUsers);
+
+}catch(err){
+    console.log(err);
+    res.status(500).json({
+        success:false,
+        message:"Internal Server Error",
+        error: err.message
+    })
+}
+}
