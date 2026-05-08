@@ -18,10 +18,6 @@ dotenv.config();
 //connect to database
 connectDB();
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
 app.use('/api', productRoutes);
 app.use("/api/auth", authRoutes );
 
