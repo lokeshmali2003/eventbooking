@@ -19,17 +19,19 @@ import User from './pages/Admin/User.jsx';
 import ManageBooking from './pages/Admin/ManageBooking.jsx';
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PrivateRoute from './PrivateRoute.jsx';
+
 function App() {
   return (
     <BrowserRouter>
      <Toaster position="top-right" />
     <Routes>
-      <Route path="/" element={<Home />}/>
-      <Route path="/events" element={<Events />}/>
-      <Route path="/eventsDetails" element={<EventDetails />}/>
-      <Route path="/booking" element={<Booking />}/>
+      <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>}/>
+      <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>}/>
+      <Route path="/eventsDetails" element={<PrivateRoute><EventDetails /></PrivateRoute>}/>
+      <Route path="/booking" element={<PrivateRoute><Booking /></PrivateRoute>}/>
 
-      <Route path="/profile" element={<Profile />}/>
+      <Route path="/profile" element={  <PrivateRoute><Profile /></PrivateRoute> }/>
 
       <Route path="/signup" element={<Signup />}/>
       <Route path="/login" element={<Login />}/>

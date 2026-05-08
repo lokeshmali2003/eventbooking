@@ -1,21 +1,44 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import API from "../../api";
+import toast from "react-hot-toast";
 
 export default function Login() {
-  const [form, setForm]       = useState({ email: '', password: '' });
+   const [form, setForm]         = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
+  const navigate                = useNavigate();
 
   const handle = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const submit = e => {
+  const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!form.email || !form.password) { setError('Please fill in all fields.'); return; }
+
+    if (!form.email || !form.password) {
+      setError('Please fill in all fields.');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000); // simulate request
+    try {
+      const res = await API.post("/auth/login", form);
+
+      // token aur user save karo
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      toast.success(res.data.message);
+      navigate("/profile");
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen flex font-body" style={{ background: 'linear-gradient(135deg,#0a1628 0%,#1a3a6e 60%,#0a1628 100%)' }}>

@@ -1,99 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
-
-// ── Mock User ────────────────────────────────────────────────────────
-const USER = {
-  name: 'Ada Lovelace',
-  email: 'ada@techforward.io',
-  phone: '+1 (415) 000-1234',
-  company: 'Acme Corp',
-  jobTitle: 'Software Engineer',
-  avatar: 'AL',
-  memberSince: 'March 2024',
-  totalSpent: 1342,
-  eventsAttended: 5,
-  upcomingCount: 2,
-};
-
-// ── Mock Bookings ────────────────────────────────────────────────────
-const BOOKINGS = [
-  {
-    id: 'TF-A8K2P1',
-    event: 'Future Forward Tech Summit',
-    category: 'tech',
-    tag: '💻 Tech',
-    date: 'Sep 5, 2025',
-    time: '9:00 AM – 6:00 PM',
-    location: 'Moscone Center, SF',
-    ticket: 'VIP Pass',
-    qty: 1,
-    total: 549,
-    status: 'approved',
-    bookedOn: 'Jul 12, 2025',
-    img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80',
-  },
-  {
-    id: 'TF-C3NX72',
-    event: 'Neon Horizons Music Festival',
-    category: 'music',
-    tag: '🎵 Music',
-    date: 'Aug 14–16, 2025',
-    time: 'Gates open 4:00 PM',
-    location: 'Golden Gate Park, SF',
-    ticket: 'General Admission',
-    qty: 2,
-    total: 298,
-    status: 'pending',
-    bookedOn: 'Jul 18, 2025',
-    img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80',
-  },
-  {
-    id: 'TF-B7YW34',
-    event: 'AI & Machine Learning Workshop',
-    category: 'tech',
-    tag: '💻 Tech',
-    date: 'Aug 20, 2025',
-    time: '10:00 AM – 1:00 PM',
-    location: 'Stanford Campus, Palo Alto',
-    ticket: 'Workshop Pass',
-    qty: 1,
-    total: 199,
-    status: 'approved',
-    bookedOn: 'Jun 30, 2025',
-    img: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=80',
-  },
-  {
-    id: 'TF-D1MQ89',
-    event: 'Luminary Art Gala',
-    category: 'art',
-    tag: '🎨 Art',
-    date: 'Sep 22, 2025',
-    time: '7:00 PM – 11:00 PM',
-    location: 'SFMOMA, San Francisco',
-    ticket: 'General Admission',
-    qty: 2,
-    total: 190,
-    status: 'cancelled',
-    bookedOn: 'Jun 15, 2025',
-    img: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=600&q=80',
-  },
-  {
-    id: 'TF-E9ZR55',
-    event: 'Mindful Living Retreat',
-    category: 'wellness',
-    tag: '🧘 Wellness',
-    date: 'Oct 11–13, 2025',
-    time: 'All day',
-    location: 'Esalen Institute, Big Sur',
-    ticket: 'Full Retreat',
-    qty: 1,
-    total: 450,
-    status: 'pending',
-    bookedOn: 'Jul 22, 2025',
-    img: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
-  },
-];
+import { getUsers, updateUser } from "../../api";
+import { useNavigate } from "react-router-dom";
 
 const TABS = ['All', 'Upcoming', 'Pending', 'Cancelled'];
 
@@ -308,7 +217,11 @@ function TicketModal({ booking, onClose }) {
 
 // ── Edit Profile Modal ───────────────────────────────────────────────
 function EditModal({ user, onClose, onSave }) {
-  const [form, setForm] = useState({ ...user });
+  const [form, setForm] = useState(user || {});
+
+useEffect(() => {
+  setForm(user || {});
+}, [user]);
 
   const field = (key, label, type = 'text') => (
     <div>
@@ -363,17 +276,45 @@ function EditModal({ user, onClose, onSave }) {
 
 // ── Main Profile Component ───────────────────────────────────────────
 function Profile() {
+  const navigate = useNavigate();
 
-  const [user, setUser] = useState({
-    ...USER,
-    firstName: 'Ada',
-    lastName: 'Lovelace',
-  });
+  const [user, setUser] = useState({});
+  const [bookings, setBookings] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
-  const [bookings, setBookings] = useState(BOOKINGS);
   const [viewedBooking, setViewedBooking] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await getUsers();
+      const userData = res.data.data;
+      if (userData) {
+        setUser({
+  ...userData,
+  _id: userData._id, // IMPORTANT
+  avatar: `${userData.firstName?.[0] || ''}${userData.lastName?.[0] || ''}`,
+});
+        // Agar bookings bhi API se aate hain toh yahan set karo
+        // setBookings(userData.bookings || []);
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      }
+    }
+  };
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -385,6 +326,21 @@ function Profile() {
       prev.map(b => b.id === id ? { ...b, status: 'cancelled' } : b)
     );
     showToast('Booking cancelled. Refund will be processed in 5–7 days.', 'info');
+  };
+
+  const handleSave = async (updatedUser) => {
+    try {
+       const res = await updateUser(updatedUser._id, updatedUser);
+      const saved = res.data?.data || res.data;
+      setUser({
+        ...saved,
+        avatar: `${saved.firstName?.[0] || ''}${saved.lastName?.[0] || ''}`,
+      });
+      showToast('Profile updated successfully!');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update profile.', 'error');
+    }
   };
 
   const filtered = bookings.filter(b => {
@@ -408,7 +364,6 @@ function Profile() {
 
       {/* ── PROFILE HERO ── */}
       <section className="hero-bg pt-28 pb-24 relative overflow-hidden">
-        {/* Decorative blobs */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-sky/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-cobalt/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
@@ -419,7 +374,6 @@ function Profile() {
               <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-cobalt to-sky flex items-center justify-center shadow-2xl shadow-cobalt/40">
                 <span className="font-display text-3xl font-black text-white">{user.avatar}</span>
               </div>
-              {/* Online dot */}
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white shadow-sm" />
             </div>
 
@@ -429,7 +383,7 @@ function Profile() {
                 Member since {user.memberSince}
               </div>
               <h1 className="font-display text-4xl font-black text-white leading-none" style={{ letterSpacing: '-0.03em' }}>
-               {user.firstName} {user.lastName}
+                {user.firstName} {user.lastName}
               </h1>
               <p className="text-white/60 text-sm mt-1.5">{user.jobTitle} · {user.company}</p>
             </div>
@@ -484,8 +438,8 @@ function Profile() {
                       ),
                       val: user.company,
                     },
-                  ].map(({ icon, val }) => (
-                    <div key={val} className="flex items-center gap-3">
+                  ].map(({ icon, val }, index) => (
+                    <div key={index} className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-navy/5 rounded-lg flex items-center justify-center text-navy/50 flex-shrink-0">
                         {icon}
                       </div>
@@ -497,9 +451,9 @@ function Profile() {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3">
-                <StatCard icon="🎟" label="Events Attended" value={user.eventsAttended} />
-                <StatCard icon="⏳" label="Upcoming" value={user.upcomingCount} />
-                <StatCard icon="💳" label="Total Spent" value={`$${user.totalSpent.toLocaleString()}`} />
+                <StatCard icon="🎟" label="Events Attended" value={user.eventsAttended ?? 0} />
+                <StatCard icon="⏳" label="Upcoming" value={user.upcomingCount ?? 0} />
+                <StatCard icon="💳" label="Total Spent" value={`$${user.totalSpent ? user.totalSpent.toLocaleString() : 0}`} />
                 <StatCard icon="⭐" label="Member Status" value="Gold" sub="Top 10%" />
               </div>
 
@@ -532,7 +486,6 @@ function Profile() {
 
             {/* ── RIGHT: BOOKINGS ── */}
             <div className="lg:col-span-2">
-              {/* Section header */}
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-display text-2xl font-black text-navy">My Bookings</h2>
                 <a href="/events" className="text-cobalt hover:text-sky text-sm font-semibold transition-colors">
@@ -630,19 +583,16 @@ function Profile() {
         <EditModal
           user={user}
           onClose={() => setEditOpen(false)}
-          onSave={data => {
-            setUser(prev => ({ ...prev, ...data, name: `${data.firstName} ${data.lastName}`, avatar: `${data.firstName?.[0] || ''}${data.lastName?.[0] || ''}` }));
-            showToast('Profile updated successfully!');
-          }}
+          onSave={handleSave}
         />
       )}
 
       {/* ── TOAST ── */}
       {toast && (
         <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-3 transition-all duration-300
-          ${toast.type === 'info' ? 'bg-amber-600' : 'bg-navy'} text-white`}
+          ${toast.type === 'info' ? 'bg-amber-600' : toast.type === 'error' ? 'bg-red-600' : 'bg-navy'} text-white`}
         >
-          <span>{toast.type === 'info' ? '↩️' : '✓'}</span>
+          <span>{toast.type === 'info' ? '↩️' : toast.type === 'error' ? '✕' : '✓'}</span>
           {toast.msg}
         </div>
       )}

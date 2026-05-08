@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    phone:{
+      type: Number
+    },
+    Company:{
+      type: String
+    },
+    JobTitle:{
+      type: String
+    }
+
   },
   { timestamps: true }
 );
