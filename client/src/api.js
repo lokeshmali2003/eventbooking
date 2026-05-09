@@ -17,7 +17,7 @@ export const getUsers = () => {
 };
 
 export const updateUser = (id, updatedData) =>
-  API.put(`/updateUser/${id}`, updatedData);
+  API.put(`/auth/updateUser/${id}`, updatedData);
 
 export default API;
 

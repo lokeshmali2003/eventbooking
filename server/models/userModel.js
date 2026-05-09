@@ -19,15 +19,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    phone:{
+    phone: {
       type: Number
     },
-    Company:{
+    company: {
       type: String
     },
-    JobTitle:{
+    jobTitle: {
       type: String
-    }
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
 
   },
   { timestamps: true }

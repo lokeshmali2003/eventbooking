@@ -101,6 +101,7 @@ exports.loginUser = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role
       },
     });
 
@@ -113,9 +114,9 @@ exports.updateUser = async(req,res) =>{
     try{
         console.log("PUT Request")
         const {id} = req.params;
-        const {firstName, lastName , email, phone,Company ,JobTitle } = req.body;
+        const {firstName, lastName , email, phone,company ,jobTitle } = req.body;
 
-        const updateUser = await User.findByIdAndUpdate(id,{firstName, lastName , email, phone,Company ,JobTitle}, {new:true});
+        const updateUser = await User.findByIdAndUpdate(id,{firstName, lastName , email, phone,company ,jobTitle}, {new:true});
 
         if(!updateUser){
             return res.status(404).json({
@@ -125,9 +126,9 @@ exports.updateUser = async(req,res) =>{
         }
 
         res.status(200).json({
-            success: true,
-            User: updateUser
-        })
+   success: true,
+   data: updateUser
+})
 
     }
     catch(err){

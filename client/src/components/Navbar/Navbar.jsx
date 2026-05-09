@@ -52,7 +52,7 @@ function Navbar() {
             <div className="hidden md:flex items-center gap-8">
               <Link to="/" className={`font-medium text-sm transition-colors ${linkColor}`}>Home</Link>
               <Link to="/events" className={`font-medium text-sm transition-colors ${linkColor}`}>Events</Link>
-              <Link to="/dashboard" className={`font-medium text-sm transition-colors ${linkColor}`}>Dashboard</Link>
+             
               <Link to="/profile"
                 className="bg-white text-cobalt px-5 py-2 rounded-full text-sm font-semibold hover:bg-ice transition-colors shadow-sm">
                 Profile
@@ -81,9 +81,7 @@ function Navbar() {
                 <Link to="/events" onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-sm sm:text-base transition-colors py-1">
                   Events
                 </Link>
-                <Link to="/dashboard" onClick={closeMobileMenu} className="text-white/90 hover:text-white font-medium text-sm sm:text-base transition-colors py-1">
-                  Dashboard
-                </Link>
+                
                 <Link to="/profile" onClick={closeMobileMenu}
                   className="bg-white text-cobalt px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-semibold text-center hover:bg-ice transition-colors mt-1">
                   Profile

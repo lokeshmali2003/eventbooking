@@ -30,7 +30,14 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       toast.success(res.data.message);
+      if (res.data.user.role === "admin") {
+      navigate("/dashboard");
+    }
+
+    // USER
+    else {
       navigate("/profile");
+    }
 
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
