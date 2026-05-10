@@ -228,26 +228,7 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* ── QUICK ACTIONS ── */}
-      <section className="pb-24">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="bg-gradient-to-br from-navy to-cobalt rounded-3xl p-10 text-center">
-            <h2 className="font-display text-3xl font-black text-white mb-3">Ready to create your next event?</h2>
-            <p className="text-white/70 mb-8 max-w-xl mx-auto">
-              Set up a new event in minutes and start selling tickets right away.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button className="bg-white text-navy px-8 py-3.5 rounded-full font-semibold hover:bg-ice transition-colors shadow-lg">
-                <Link to="/ManageEvents"> Create Event</Link>
-               
-              </button>
-              <button className="bg-white/10 border border-white/25 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm">
-                View Analytics
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+     
 
       <Footer />
     </div>

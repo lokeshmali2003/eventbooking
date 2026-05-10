@@ -1,62 +1,15 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import AdminNav from '../../components/Navbar/AdminNav';
 import Footer from '../../components/Footer/Footer';
+import {createEvent,getEvents,deleteEvent, updateEvent,} from "../../api";
 
-// ── Initial Seed Data (mirrors Events.jsx) ─────────────────────────
-const seedEvents = [
-  {
-    id: 1, category: 'music',
-    name: 'Neon Horizons Music Festival',
-    date: '2025-08-14', location: 'Golden Gate Park, SF',
-    seats: 2400, price: 149, tag: '🎵 Music',
-    img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80',
-    description: 'Three days of electronic music featuring world-class DJs',
-    city: 'San Francisco',
-  },
-  {
-    id: 2, category: 'tech',
-    name: 'Future Forward Tech Summit',
-    date: '2025-09-05', location: 'Moscone Center, SF',
-    seats: 820, price: 299, tag: '💻 Tech',
-    img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80',
-    description: 'Cutting-edge technology conference with industry leaders',
-    city: 'San Francisco',
-  },
-  {
-    id: 3, category: 'art',
-    name: 'Luminary Art Gala',
-    date: '2025-09-22', location: 'SFMOMA, San Francisco',
-    seats: 150, price: 95, tag: '🎨 Art',
-    img: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=600&q=80',
-    description: 'An evening celebrating contemporary art and culture',
-    city: 'San Francisco',
-  },
-  {
-    id: 4, category: 'food',
-    name: 'Harvest & Vine Food Expo',
-    date: '2025-10-03', location: 'Fort Mason, SF',
-    seats: 600, price: 75, tag: '🍷 Food',
-    img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
-    description: 'Taste the finest wines and culinary creations',
-    city: 'San Francisco',
-  },
-  {
-    id: 5, category: 'wellness',
-    name: 'Mindful Living Retreat',
-    date: '2025-10-11', location: 'Esalen Institute, Big Sur',
-    seats: 60, price: 450, tag: '🧘 Wellness',
-    img: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
-    description: 'Three-day wellness retreat in breathtaking Big Sur',
-    city: 'Big Sur',
-  },
-];
-
+// ── Initial empty state ────────────────────────────────────────────
 const CATEGORIES = [
-  { id: 'music',   label: '🎵 Music' },
-  { id: 'tech',    label: '💻 Tech' },
-  { id: 'food',    label: '🍷 Food' },
-  { id: 'art',     label: '🎨 Art' },
-  { id: 'wellness',label: '🧘 Wellness' },
+  { id: 'music', label: '🎵 Music' },
+  { id: 'tech', label: '💻 Tech' },
+  { id: 'food', label: '🍷 Food' },
+  { id: 'art', label: '🎨 Art' },
+  { id: 'wellness', label: '🧘 Wellness' },
 ];
 
 const CITIES = ['San Francisco', 'Oakland', 'Palo Alto', 'Big Sur', 'Los Angeles', 'New York'];
@@ -141,7 +94,7 @@ function ImageUploader({ value, onChange }) {
         >
           <div className="w-12 h-12 bg-cobalt/10 rounded-xl flex items-center justify-center mb-3">
             <svg className="w-6 h-6 text-cobalt" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
             </svg>
           </div>
           <p className="text-navy/60 text-sm font-medium">Drop image or <span className="text-cobalt font-semibold">browse</span></p>
@@ -169,230 +122,205 @@ function EventFormModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial ?? EMPTY_FORM);
   const [errors, setErrors] = useState({});
 
-  const set = (field, val) => setForm(f => ({ ...f, [field]: val }));
+  const set = (field, val) =>
+    setForm((f) => ({ ...f, [field]: val }));
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())       e.name = 'Event name is required';
-    if (!form.date)              e.date = 'Date is required';
-    if (!form.location.trim())   e.location = 'Location is required';
-    if (!form.city)              e.city = 'City is required';
-    if (!form.seats || form.seats <= 0) e.seats = 'Enter a valid seat count';
-    if (!form.price || form.price < 0)  e.price = 'Enter a valid price';
-    if (!form.description.trim()) e.description = 'Description is required';
+    if (!form.name.trim()) e.name = "Event name is required";
+    if (!form.date) e.date = "Date is required";
+    if (!form.location.trim()) e.location = "Location is required";
+    if (!form.city) e.city = "City is required";
+    if (!form.seats || form.seats <= 0) e.seats = "Enter valid seats";
+    if (!form.price || form.price < 0) e.price = "Enter valid price";
+    if (!form.description.trim()) e.description = "Description required";
     return e;
   };
 
   const handleSubmit = () => {
     const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
+    if (Object.keys(e).length) {
+      setErrors(e);
+      return;
+    }
+
     onSave({
       ...form,
       tag: categoryTag(form.category),
-      seats: parseInt(form.seats),
-      price: parseFloat(form.price),
+      seats: Number(form.seats),
+      price: Number(form.price),
     });
   };
 
-  const Field = ({ label, error, children }) => (
-    <div>
-      <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">{label}</label>
-      {children}
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  );
-
-  const inputCls = (err) =>
-    `w-full px-4 py-2.5 rounded-xl bg-navy/5 text-navy placeholder-navy/30 border focus:outline-none focus:ring-2 text-sm font-medium
-    ${err ? 'border-red-400 focus:ring-red-300' : 'border-navy/10 focus:ring-cobalt'}`;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Modal Header */}
-        <div className="sticky top-0 bg-white/95 backdrop-blur-sm px-8 py-5 border-b border-navy/5 rounded-t-3xl flex items-center justify-between z-10">
-          <div>
-            <h2 className="font-display text-2xl font-black text-navy">
-              {isEdit ? 'Edit Event' : 'Add New Event'}
-            </h2>
-            <p className="text-navy/40 text-sm mt-0.5">
-              {isEdit ? `Editing: ${initial.name}` : 'Fill in the details below'}
-            </p>
-          </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-navy/5 hover:bg-navy/10 flex items-center justify-center transition-colors">
-            <svg className="w-5 h-5 text-navy/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b border-navy/5 px-8 py-6 flex items-center justify-between">
+          <h2 className="font-display text-2xl font-black text-navy">
+            {isEdit ? 'Edit Event' : 'Create New Event'}
+          </h2>
+          <button onClick={onClose} className="text-navy/40 hover:text-navy transition-colors">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className="px-8 py-6 space-y-6">
-          {/* Image */}
-          <ImageUploader value={form.img} onChange={(v) => set('img', v)} />
-
-          {/* Name */}
-          <Field label="Event Name" error={errors.name}>
+        <div className="p-8 space-y-6">
+          {/* Event Name */}
+          <div>
+            <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+              Event Name *
+            </label>
             <input
               type="text"
-              placeholder="e.g. Neon Horizons Music Festival"
               value={form.name}
-              onChange={e => set('name', e.target.value)}
-              className={inputCls(errors.name)}
+              onChange={(e) => set('name', e.target.value)}
+              placeholder="e.g., Summer Music Festival"
+              className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy placeholder-navy/30 border ${errors.name ? 'border-red-400' : 'border-navy/10'
+                } focus:outline-none focus:ring-2 focus:ring-cobalt`}
             />
-          </Field>
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+          </div>
 
-          {/* Category + City */}
+          {/* Category & City */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Category" error={errors.category}>
+            <div>
+              <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+                Category *
+              </label>
               <select
                 value={form.category}
-                onChange={e => set('category', e.target.value)}
-                className={inputCls(false)}
+                onChange={(e) => {
+                  set('category', e.target.value);
+                  set('tag', categoryTag(e.target.value));
+                }}
+                className="w-full px-4 py-3 rounded-xl bg-navy/5 text-navy border border-navy/10 focus:outline-none focus:ring-2 focus:ring-cobalt"
               >
                 {CATEGORIES.map(c => (
                   <option key={c.id} value={c.id}>{c.label}</option>
                 ))}
               </select>
-            </Field>
-            <Field label="City" error={errors.city}>
+            </div>
+
+            <div>
+              <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+                City *
+              </label>
               <select
                 value={form.city}
-                onChange={e => set('city', e.target.value)}
-                className={inputCls(errors.city)}
+                onChange={(e) => set('city', e.target.value)}
+                className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy border ${errors.city ? 'border-red-400' : 'border-navy/10'
+                  } focus:outline-none focus:ring-2 focus:ring-cobalt`}
               >
-                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {CITIES.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
               </select>
-            </Field>
+              {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+            </div>
           </div>
 
-          {/* Date + Location */}
+          {/* Date & Location */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Date" error={errors.date}>
+            <div>
+              <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+                Date *
+              </label>
               <input
                 type="date"
                 value={form.date}
-                onChange={e => set('date', e.target.value)}
-                className={inputCls(errors.date)}
+                onChange={(e) => set('date', e.target.value)}
+                className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy border ${errors.date ? 'border-red-400' : 'border-navy/10'
+                  } focus:outline-none focus:ring-2 focus:ring-cobalt`}
               />
-            </Field>
-            <Field label="Venue / Location" error={errors.location}>
+              {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+            </div>
+
+            <div>
+              <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+                Venue/Location *
+              </label>
               <input
                 type="text"
-                placeholder="e.g. Moscone Center, SF"
                 value={form.location}
-                onChange={e => set('location', e.target.value)}
-                className={inputCls(errors.location)}
+                onChange={(e) => set('location', e.target.value)}
+                placeholder="e.g., Golden Gate Park"
+                className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy placeholder-navy/30 border ${errors.location ? 'border-red-400' : 'border-navy/10'
+                  } focus:outline-none focus:ring-2 focus:ring-cobalt`}
               />
-            </Field>
+              {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
+            </div>
           </div>
 
-          {/* Price + Seats */}
+          {/* Seats & Price */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Ticket Price ($)" error={errors.price}>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-navy/40 font-semibold text-sm">$</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={form.price}
-                  onChange={e => set('price', e.target.value)}
-                  className={`${inputCls(errors.price)} pl-8`}
-                />
-              </div>
-            </Field>
-            <Field label="Available Seats" error={errors.seats}>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="e.g. 500"
-                  value={form.seats}
-                  onChange={e => set('seats', e.target.value)}
-                  className={inputCls(errors.seats)}
-                />
-              </div>
-            </Field>
-          </div>
+            <div>
+              <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+                Available Seats *
+              </label>
+              <input
+                type="number"
+                value={form.seats}
+                onChange={(e) => set('seats', e.target.value)}
+                placeholder="500"
+                min="1"
+                className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy placeholder-navy/30 border ${errors.seats ? 'border-red-400' : 'border-navy/10'
+                  } focus:outline-none focus:ring-2 focus:ring-cobalt`}
+              />
+              {errors.seats && <p className="text-red-500 text-xs mt-1">{errors.seats}</p>}
+            </div>
 
-          {/* Seat presets */}
-          <div className="flex flex-wrap gap-2">
-            {[50, 100, 250, 500, 1000, 2500].map(n => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => set('seats', n)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all
-                  ${parseInt(form.seats) === n
-                    ? 'bg-cobalt text-white border-cobalt'
-                    : 'border-navy/15 text-navy/50 hover:border-cobalt/50 hover:text-cobalt'}`}
-              >
-                {n.toLocaleString()}
-              </button>
-            ))}
+            <div>
+              <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+                Ticket Price ($) *
+              </label>
+              <input
+                type="number"
+                value={form.price}
+                onChange={(e) => set('price', e.target.value)}
+                placeholder="99"
+                min="0"
+                step="0.01"
+                className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy placeholder-navy/30 border ${errors.price ? 'border-red-400' : 'border-navy/10'
+                  } focus:outline-none focus:ring-2 focus:ring-cobalt`}
+              />
+              {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+            </div>
           </div>
 
           {/* Description */}
-          <Field label="Description" error={errors.description}>
+          <div>
+            <label className="text-navy/60 text-xs font-semibold uppercase tracking-wider mb-2 block">
+              Description *
+            </label>
             <textarea
-              rows={3}
-              placeholder="Describe the event in a few sentences…"
               value={form.description}
-              onChange={e => set('description', e.target.value)}
-              className={`${inputCls(errors.description)} resize-none`}
+              onChange={(e) => set('description', e.target.value)}
+              placeholder="Tell people what makes this event special..."
+              rows="4"
+              className={`w-full px-4 py-3 rounded-xl bg-navy/5 text-navy placeholder-navy/30 border ${errors.description ? 'border-red-400' : 'border-navy/10'
+                } focus:outline-none focus:ring-2 focus:ring-cobalt resize-none`}
             />
-          </Field>
+            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+          </div>
 
-          {/* Preview strip */}
-          {form.name && (
-            <div className="bg-navy/3 border border-navy/8 rounded-2xl p-4 flex items-center gap-4">
-              {form.img && (
-                <img src={form.img} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
-              )}
-              <div className="min-w-0">
-                <p className="font-display font-bold text-navy truncate">{form.name}</p>
-                <p className="text-navy/40 text-xs mt-0.5">
-                  {form.date || '—'} · {form.location || '—'} · ${form.price || '0'} · {form.seats || '0'} seats
-                </p>
-              </div>
-              <span className="ml-auto bg-cobalt/10 text-cobalt text-xs font-bold px-3 py-1 rounded-full flex-shrink-0">
-                {categoryTag(form.category)}
-              </span>
-            </div>
-          )}
+          {/* Image Upload */}
+          <ImageUploader value={form.img} onChange={(v) => set('img', v)} />
         </div>
 
-        {/* Modal Footer */}
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm px-8 py-5 border-t border-navy/5 rounded-b-3xl flex gap-3">
+        <div className="sticky bottom-0 bg-white border-t border-navy/5 px-8 py-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 border border-navy/15 text-navy py-3 rounded-xl font-semibold text-sm hover:bg-navy/5 transition-colors"
+            className="flex-1 border border-navy/15 text-navy py-3 rounded-xl font-semibold hover:bg-navy/5 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-[2] bg-cobalt hover:bg-sky text-white py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2"
+            className="flex-1 bg-cobalt hover:bg-sky text-white py-3 rounded-xl font-bold transition-colors"
           >
-            {isEdit ? (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                </svg>
-                Save Changes
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                </svg>
-                Publish Event
-              </>
-            )}
+            {isEdit ? 'Save Changes' : 'Publish Event'}
           </button>
         </div>
       </div>
@@ -407,7 +335,7 @@ function DeleteModal({ event, onConfirm, onClose }) {
       <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mb-5 mx-auto">
           <svg className="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
         </div>
         <h3 className="font-display text-xl font-black text-navy text-center mb-2">Delete Event?</h3>
@@ -458,9 +386,8 @@ function EventRow({ ev, onEdit, onDelete }) {
         <span className="font-display font-bold text-navy text-base">${ev.price}</span>
       </td>
       <td className="py-4 px-4">
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-          low ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
-        }`}>
+        <span className={`text-xs font-bold px-3 py-1 rounded-full ${low ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+          }`}>
           {ev.seats.toLocaleString()} {low && '⚠'}
         </span>
       </td>
@@ -471,7 +398,7 @@ function EventRow({ ev, onEdit, onDelete }) {
             className="flex items-center gap-1.5 bg-cobalt/10 hover:bg-cobalt text-cobalt hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
             </svg>
             Edit
           </button>
@@ -480,7 +407,7 @@ function EventRow({ ev, onEdit, onDelete }) {
             className="flex items-center gap-1.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
             Delete
           </button>
@@ -504,12 +431,30 @@ function Toast({ message, type, visible }) {
 
 // ── Main ManageEvents Component ────────────────────────────────────
 export default function ManageEvents() {
-  const [events, setEvents] = useState(seedEvents);
-  const [formModal, setFormModal] = useState(null); // null | 'new' | event-object
+  const [events, setEvents] = useState([]); // ✅ Empty initial state
+  const [formModal, setFormModal] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('all');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+   
+
+useEffect(() => {
+  fetchEvents();
+}, []);
+
+const fetchEvents = async () => {
+  try {
+    const res = await getEvents();
+
+    if (res.data.success) {
+      setEvents(res.data.events);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const showToast = (message, type = 'success') => {
     setToast({ visible: true, message, type });
@@ -526,29 +471,61 @@ export default function ManageEvents() {
   });
 
   // CRUD handlers
-  const handleSave = (data) => {
-    if (data.id) {
-      setEvents(es => es.map(e => e.id === data.id ? data : e));
-      showToast(`"${data.name}" updated successfully`);
-    } else {
-      const newEvent = { ...data, id: nextId(events) };
-      setEvents(es => [...es, newEvent]);
-      showToast(`"${newEvent.name}" published!`);
-    }
-    setFormModal(null);
-  };
+const handleSave = async (data) => {
+  try {
 
-  const handleDelete = () => {
-    const name = deleteTarget.name;
-    setEvents(es => es.filter(e => e.id !== deleteTarget.id));
-    setDeleteTarget(null);
-    showToast(`"${name}" deleted`, 'delete');
-  };
+    // UPDATE EVENT
+    if (data._id) {
+
+      const res = await updateEvent(data._id, data);
+
+      if (res.data.success) {
+        showToast(`"${data.name}" updated successfully`);
+      }
+
+    } else {
+
+      // CREATE EVENT
+      const res = await createEvent(data);
+
+      if (res.data.success) {
+        showToast(`"${data.name}" published!`);
+      }
+    }
+
+    fetchEvents();
+
+    setFormModal(null);
+
+  } catch (error) {
+    console.log(error);
+
+    showToast("Something went wrong", "delete");
+  }
+};
+
+ const handleDelete = async () => {
+  try {
+    const res = await deleteEvent(deleteTarget._id);
+
+    if (res.data.success) {
+      showToast(`"${deleteTarget.name}" deleted`, "delete");
+
+      fetchEvents();
+
+      setDeleteTarget(null);
+    }
+  } catch (error) {
+    console.log(error);
+
+    showToast("Delete failed", "delete");
+  }
+};
 
   // Stats
-  const totalSeats   = events.reduce((s, e) => s + e.seats, 0);
-  const avgPrice     = events.length ? (events.reduce((s, e) => s + e.price, 0) / events.length).toFixed(0) : 0;
-  const lowStock     = events.filter(e => e.seats < 100).length;
+  const totalSeats = events.reduce((s, e) => s + e.seats, 0);
+  const avgPrice = events.length ? (events.reduce((s, e) => s + e.price, 0) / events.length).toFixed(0) : 0;
+  const lowStock = events.filter(e => e.seats < 100).length;
 
   return (
     <div className="min-h-screen bg-pearl">
@@ -573,7 +550,7 @@ export default function ManageEvents() {
               className="flex items-center gap-2 bg-white text-navy font-bold px-6 py-3.5 rounded-2xl shadow-xl hover:bg-sky hover:text-white transition-all text-sm self-start sm:self-auto"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               Add New Event
             </button>
@@ -585,10 +562,10 @@ export default function ManageEvents() {
 
         {/* ── STATS ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon="🗓" label="Total Events"    value={events.length}             accent="bg-cobalt/10" />
-          <StatCard icon="🪑" label="Total Seats"     value={totalSeats.toLocaleString()} accent="bg-sky/10" />
-          <StatCard icon="💰" label="Avg. Price"      value={`$${avgPrice}`}            accent="bg-emerald-50" />
-          <StatCard icon="⚠️" label="Low Stock"       value={lowStock}                  accent="bg-amber-50" />
+          <StatCard icon="🗓" label="Total Events" value={events.length} accent="bg-cobalt/10" />
+          <StatCard icon="🪑" label="Total Seats" value={totalSeats.toLocaleString()} accent="bg-sky/10" />
+          <StatCard icon="💰" label="Avg. Price" value={`$${avgPrice}`} accent="bg-emerald-50" />
+          <StatCard icon="⚠️" label="Low Stock" value={lowStock} accent="bg-amber-50" />
         </div>
 
         {/* ── FILTER BAR ── */}
@@ -596,7 +573,7 @@ export default function ManageEvents() {
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
             <svg className="w-4 h-4 text-navy/35 absolute left-4 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               type="text"
@@ -649,7 +626,7 @@ export default function ManageEvents() {
                 <tbody>
                   {visible.map(ev => (
                     <EventRow
-                      key={ev.id}
+                      key={ev._id}
                       ev={ev}
                       onEdit={(ev) => setFormModal(ev)}
                       onDelete={setDeleteTarget}
@@ -662,7 +639,7 @@ export default function ManageEvents() {
             <div className="text-center py-20">
               <div className="w-16 h-16 bg-navy/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-navy/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
               <p className="font-display font-bold text-navy text-lg">No events match your filters</p>
@@ -680,11 +657,18 @@ export default function ManageEvents() {
         {/* ── EMPTY STATE (no events at all) ── */}
         {events.length === 0 && (
           <div className="text-center py-10">
+            <div className="w-20 h-20 bg-navy/5 rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-navy/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+              </svg>
+            </div>
+            <h3 className="font-display text-xl font-black text-navy mb-2">No Events Yet</h3>
+            <p className="text-navy/50 text-sm mb-6">Get started by creating your first event</p>
             <button
               onClick={() => setFormModal('new')}
               className="bg-cobalt hover:bg-sky text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors"
             >
-              + Create your first event
+              + Create Your First Event
             </button>
           </div>
         )}

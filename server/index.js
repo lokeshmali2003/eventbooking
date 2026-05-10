@@ -4,13 +4,15 @@ const app = express()
 const dotenv = require('dotenv');
 const productRoutes = require('./routes/productsRoutes.js')
 const authRoutes = require("./routes/authRoutes.js")
+const eventRoutes = require("./routes/eventRoutes.js")
 const cors = require('cors');
 
 const port = 5000
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // load env
 dotenv.config();
@@ -20,6 +22,7 @@ connectDB();
 
 app.use('/api', productRoutes);
 app.use("/api/auth", authRoutes );
+app.use("/api/event", eventRoutes );
 
 app.listen(port, () => {
   console.log(`Product app listening on port ${port}`)
